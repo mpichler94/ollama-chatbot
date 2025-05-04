@@ -1,0 +1,41 @@
+services:
+  pgvector:
+    image: pgvector/pgvector:pg16
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=mydatabase
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=secret
+      - PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/16/bin
+      - GOSU_VERSION=1.17
+      - LANG=en_US.utf8
+      - PG_MAJOR=16
+      - PG_VERSION=16.3-1.pgdg120+1
+      - PGDATA=/var/lib/postgresql/data
+    restart: no
+    runtime: runc
+
+  ollama:
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    environment:
+      - PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      - OLLAMA_HOST=0.0.0.0
+      - LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - NVIDIA_VISIBLE_DEVICES=all
+    restart: no
+    labels:
+      - 'org.opencontainers.image.ref.name=ubuntu'
+      - 'org.opencontainers.image.version=22.04'
+    runtime: runc
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities:
+                - gpu
